@@ -4,7 +4,10 @@ using System.Text;
 
 namespace Habit_Tracker.Models
 {
-    internal class Habit
+    public class Habit
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Color { get; set; }        
     }
 }

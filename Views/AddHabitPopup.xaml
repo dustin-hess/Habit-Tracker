@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:vm="clr-namespace:Habit_Tracker.ViewModels"
+               xmlns:models="clr-namespace:Habit_Tracker.Models"
+               x:Class="Habit_Tracker.Views.AddHabitPopup"
+               CanBeDismissedByTappingOutsideOfPopup="True"
+               x:Name="ThisPopup">
+
+    <Border StrokeShape="RoundRectangle 16"
+            BackgroundColor="#252525"
+            Stroke="#3A3A3A"
+            StrokeThickness="1"
+            WidthRequest="340"
+            Padding="20">
+
+        <Grid>
+            <!-- ANSICHT A: Habits für den Tag auswählen -->
+            <VerticalStackLayout Spacing="16" IsVisible="{Binding IsSelectingHabit}">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding SelectedDayTitle}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           VerticalOptions="Center" />
+
+                    <Button Grid.Column="1"
+                            Text="✕"
+                            Command="{Binding CloseCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="#AAAAAA"
+                            FontSize="18"
+                            Padding="0"
+                            WidthRequest="32"
+                            HeightRequest="32" />
+                </Grid>
+
+                <Label Text="Erledigte Habits auswählen:" 
+                       FontSize="13" 
+                       TextColor="#AAAAAA" />
+
+                <ScrollView MaximumHeightRequest="280">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding AvailableHabitsForSelectedDay}"
+                                         Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate >
+                                <Border StrokeShape="RoundRectangle 8"
+                                        BackgroundColor="#1E1E1E"
+                                        Stroke="{Binding Habit.MauiBrush}"
+                                        StrokeThickness="1.5"
+                                        Padding="12,10">
+
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            x:DataType="{x:Null}"
+                                            Command="{Binding Source={x:Reference ThisPopup}, Path=BindingContext.ToggleHabitForDayCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+
+                                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                                        <BoxView Grid.Column="0"
+                                                 Color="{Binding Habit.MauiColor}"
+                                                 WidthRequest="14"
+                                                 HeightRequest="14"
+                                                 CornerRadius="7"
+                                                 VerticalOptions="Center" />
+
+                                        <Label Grid.Column="1"
+                                               Text="{Binding Habit.Name}"
+                                               TextColor="White"
+                                               FontSize="15"
+                                               FontAttributes="Bold"
+                                               VerticalOptions="Center" />
+
+                                        <Label Grid.Column="2"
+                                               Text="✔"
+                                               TextColor="#4CAF50"
+                                               FontSize="18"
+                                               FontAttributes="Bold"
+                                               IsVisible="{Binding IsCompleted}"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10" Margin="0,8,0,0">
+                    <Button Grid.Column="0"
+                            Text="+ Neues Habit"
+                            Command="{Binding OpenCreateHabitCommand}"
+                            BackgroundColor="#333333"
+                            TextColor="White" />
+
+                    <Button Grid.Column="1"
+                            Text="Fertig"
+                            Command="{Binding CloseCommand}"
+                            BackgroundColor="#2196F3"
+                            TextColor="White"
+                            FontAttributes="Bold" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- ANSICHT B: Neues Habit erstellen -->
+            <VerticalStackLayout Spacing="16" IsVisible="{Binding IsCreatingHabit}">
+                <Label Text="Neues Habit erstellen"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="White" />
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Name:" FontSize="13" TextColor="#AAAAAA" />
+                    <Border StrokeShape="RoundRectangle 8"
+                            BackgroundColor="#1E1E1E"
+                            Stroke="#3A3A3A"
+                            StrokeThickness="1"
+                            Padding="10,2">
+                        <Entry Text="{Binding NewHabitName}"
+                               Placeholder="z. B. Dehnen, Gitarre..."
+                               PlaceholderColor="#666666"
+                               TextColor="White"
+                               BackgroundColor="Transparent"
+                               MaxLength="25" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Farbe für Kalender-Badge:" FontSize="13" TextColor="#AAAAAA" />
+                    <FlexLayout BindableLayout.ItemsSource="{Binding AvailableColors}"
+                                Wrap="Wrap"
+                                JustifyContent="Start"
+                                AlignItems="Center">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate >
+                                <Border StrokeShape="RoundRectangle 20"
+                                        BackgroundColor="{Binding MauiColor}"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        Margin="5"
+                                        Stroke="Transparent"
+                                        StrokeThickness="2.5">
+
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            x:DataType="{x:Null}"
+                                            Command="{Binding Source={x:Reference ThisPopup}, Path=BindingContext.SelectColorCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Stroke" Value="White" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+
+                                    <Label Text="✔"
+                                           TextColor="White"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           IsVisible="{Binding IsSelected}" />
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </VerticalStackLayout>
+
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0,8,0,0">
+                    <Button Grid.Column="0"
+                            Text="Zurück"
+                            Command="{Binding CancelCreateHabitCommand}"
+                            BackgroundColor="#333333"
+                            TextColor="White" />
+
+                    <Button Grid.Column="1"
+                            Text="Speichern"
+                            Command="{Binding SaveNewHabitCommand}"
+                            BackgroundColor="#4CAF50"
+                            TextColor="White"
+                            FontAttributes="Bold" />
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Border>
+
+</toolkit:Popup>
